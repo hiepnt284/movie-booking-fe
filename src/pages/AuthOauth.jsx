@@ -11,6 +11,8 @@ export default function AuthOauth() {
   useEffect(() => {
     const code = searchParams.get("code");
     if (code) {
+      console.log(code);
+      
       // Kiểm tra xem code có tồn tại không
       dispatch(login({ payload: code, isLoginGg: true }));
       navigate("/");

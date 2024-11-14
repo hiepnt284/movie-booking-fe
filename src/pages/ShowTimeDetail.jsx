@@ -5,6 +5,7 @@ import showtimeApi from "../api/showtimeApi";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
 import paymentApi from "../api/paymentApi";
+import foodApi from "../api/foodApi";
 
 const { Title, Paragraph } = Typography;
 
@@ -13,7 +14,9 @@ const ShowTimeDetail = () => {
   const [showtimeDetails, setShowtimeDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSeats, setSelectedSeats] = useState([]);
-
+  const [selectedFoods, setSelectedFoods] = useState([]);
+  const [listFoods, setListFoods] = useState([]);
+  const [step, setStep] = useState("selectSeat");
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -75,8 +78,6 @@ const ShowTimeDetail = () => {
 
   // Hàm xử lý chọn ghế
   const handleSeatSelect = (seat) => {
-    console.log(selectedSeats);
-
     if (seat.showSeatStatus === "AVAILABLE") {
       setSelectedSeats((prev) => {
         if (prev.includes(seat.id)) {
@@ -87,40 +88,57 @@ const ShowTimeDetail = () => {
     }
   };
 
-    const handleContinue = async () => {
-      try {
-        const totalPrice = calculateTotalPrice();
-        const bookingRequest = {
-          userId: user.id, // Thay bằng userId thật nếu cần
-          totalPrice: totalPrice,
-          bookingDate: dayjs().toISOString(),
-          showtimeId: showtimeId,
-          listShowSeatId: selectedSeats,
-          listShowSeatNumber: selectedSeats
-            .map((seatId) => {
-              const seat = showSeatResponseList.find((s) => s.id === seatId);
-              return seat ? `${seat.seatRow}${seat.number}` : "";
-            })
-            .join(", "),
-        };
+  const handleBook = async () => {
+    try {
+      const totalPrice = calculateTotalPrice();
+      const bookingRequest = {
+        userId: user.id, // Thay bằng userId thật nếu cần
+        totalPrice: totalPrice,
+        showtimeId: showtimeId,
+        listShowSeatId: selectedSeats,
+        listShowSeatNumber: selectedSeats
+          .map((seatId) => {
+            const seat = showSeatResponseList.find((s) => s.id === seatId);
+            return seat ? `${seat.seatRow}${seat.number}` : "";
+          })
+          .join(", "),
+        foodBookingRequestList: selectedFoods.map((item) => {
+          const { id, quantity } = item;
+          return { foodId: id, quantity: quantity };
+        }),
+      };
 
-        console.log(bookingRequest);
-        
+      console.log(bookingRequest);
 
-        const response = await paymentApi.createVnPayPayment(bookingRequest);
-        console.log(response.result.paymentUrl);
-        
-        if (response && response.result.paymentUrl) {
-          window.location.href = response.result.paymentUrl; // Redirect to payment URL
-        } else {
-          message.error("Failed to initiate payment");
-        }
-      } catch (error) {
-        console.log(error);
-        
-        message.error("An error occurred while processing payment");
+      const response = await paymentApi.createVnPayPayment(bookingRequest);
+      console.log(response.result.paymentUrl);
+
+      if (response && response.result.paymentUrl) {
+        window.location.href = response.result.paymentUrl; // Redirect to payment URL
+      } else {
+        message.error("Failed to initiate payment");
       }
-    };
+    } catch (error) {
+      message.error(error.response?.data?.message || "Có lỗi xảy ra.");
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
+  };
+
+  const handleContinue = async () => {
+    try {
+      setLoading(true);
+      const res = await foodApi.getAllForUser();
+      setListFoods(res.result);
+      console.log(res.result);
+      setStep("selectFood");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getSelectedSeatsByType = () => {
     const seatGroups = {};
@@ -140,14 +158,43 @@ const ShowTimeDetail = () => {
     return seatGroups;
   };
 
-  // Hàm tính tổng tiền cho ghế đã chọn
+  const handleFoodSelect = (foodId, action) => {
+    console.log(selectedFoods);
+
+    setSelectedFoods((prev) => {
+      const food = prev.find((item) => item.id === foodId);
+      if (food) {
+        const updatedQuantity =
+          action === "increase" ? food.quantity + 1 : food.quantity - 1;
+        return prev
+          .map((item) =>
+            item.id === foodId
+              ? { ...item, quantity: Math.max(updatedQuantity, 0) }
+              : item
+          )
+          .filter((item) => item.quantity > 0); // Lọc các item có quantity > 0
+      } else if (action === "increase") {
+        const food = listFoods.find((item) => item.id === foodId);
+        return [...prev, { ...food, quantity: 1 }];
+      }
+      return prev;
+    });
+  };
+
   const calculateTotalPrice = () => {
-    return showSeatResponseList.reduce((total, seat) => {
+    const seatTotal = showSeatResponseList.reduce((total, seat) => {
       if (selectedSeats.includes(seat.id)) {
-        return total + seat.price; // Cộng dồn giá của ghế đã chọn
+        return total + seat.price;
       }
       return total;
     }, 0);
+
+    const foodTotal = selectedFoods.reduce(
+      (total, food) => total + food.price * food.quantity,
+      0
+    );
+
+    return seatTotal + foodTotal;
   };
 
   // Hàm render sơ đồ ghế
@@ -293,33 +340,75 @@ const ShowTimeDetail = () => {
 
   return (
     <div
-      style={{ minHeight: 600, padding: "20px 70px", background: "#f9f9f9" }}
+      style={{ minHeight: 700, padding: "20px 70px", background: "#f9f9f9" }}
     >
       <Row gutter={[16, 16]}>
         <Col span={16}>
-          <Card style={{ borderTop: "5px solid orange", textAlign: "center" }}>
-            <Flex justify="center">
+          {step == "selectSeat" ? (
+            <Card
+              style={{ borderTop: "5px solid orange", textAlign: "center" }}
+            >
+              <Flex justify="center">
+                <div
+                  style={{
+                    height: "5px",
+                    backgroundColor: "green",
+                    width: "80%",
+                  }}
+                ></div>
+              </Flex>
+
               <div
                 style={{
-                  height: "5px",
-                  backgroundColor: "green",
-                  width: "80%",
+                  textAlign: "center",
+                  margin: "10px",
+                  color: "lightslategray",
                 }}
-              ></div>
-            </Flex>
-
-            <div
-              style={{
-                textAlign: "center",
-                margin: "10px",
-                color: "lightslategray",
-              }}
-            >
-              Màn hình
-            </div>
-            {renderSeatMap()}
-            {renderSeatLegend()}
-          </Card>
+              >
+                Màn hình
+              </div>
+              {renderSeatMap()}
+              {renderSeatLegend()}
+            </Card>
+          ) : (
+            <Card>
+              <Title level={4}>Chọn combo</Title>
+              {listFoods.map((food) => (
+                <Flex key={food.id} gap={10} style={{ marginBottom: "10px" }}>
+                  <img src={food.img} alt="" height={100} width={150} />
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ fontWeight: "bold", marginBottom: "5px" }}>
+                      {food.name}
+                    </h4>
+                    <div style={{ marginBottom: "5px" }}>
+                      {food.description}
+                    </div>
+                    <Flex justify="space-between">
+                      <div style={{ fontWeight: "bold" }}>
+                        Giá: {food.price.toLocaleString()} đ
+                      </div>
+                      <Flex>
+                        <button
+                          onClick={() => handleFoodSelect(food.id, "decrease")}
+                        >
+                          -
+                        </button>
+                        <button>
+                          {selectedFoods.find((item) => item.id === food.id)
+                            ?.quantity || 0}
+                        </button>
+                        <button
+                          onClick={() => handleFoodSelect(food.id, "increase")}
+                        >
+                          +
+                        </button>
+                      </Flex>
+                    </Flex>
+                  </div>
+                </Flex>
+              ))}
+            </Card>
+          )}
         </Col>
         <Col span={8}>
           <Card style={{ borderTop: "5px solid orange" }}>
@@ -378,6 +467,31 @@ const ShowTimeDetail = () => {
                     )
                   )}
                 </div>
+                {selectedFoods?.length > 0 && (
+                  <div>
+                    <div>
+                      -----------------------------------------------------------------------
+                    </div>
+                    <div>
+                      {selectedFoods.map((item) => {
+                        let totalPrice = item.price * item.quantity;
+
+                        return (
+                          <div key={item.id} style={{ marginTop: "5px" }}>
+                            <Flex justify="space-between">
+                              <Paragraph style={{ margin: "0px" }}>
+                                <strong>{item.quantity}x</strong> {item.name}
+                              </Paragraph>
+                              <Paragraph style={{ margin: "0px" }}>
+                                <strong>{totalPrice.toLocaleString()} đ</strong>
+                              </Paragraph>
+                            </Flex>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <div>
                   -----------------------------------------------------------------------
                 </div>
@@ -385,12 +499,22 @@ const ShowTimeDetail = () => {
                   <div>Tổng cộng</div>
                   <div>{calculateTotalPrice().toLocaleString()} ₫</div>
                 </Flex>
-                <Flex justify="space-between" style={{ marginTop: "10px" }}>
-                  <Button>Trở lại</Button>
-                  <Button type="primary" onClick={handleContinue}>
-                    Tiếp tục
-                  </Button>
-                </Flex>
+                {step == "selectSeat" ? (
+                  <Flex justify="space-between" style={{ marginTop: "10px" }}>
+                    <Button type="primary" onClick={handleContinue}>
+                      Tiếp tục
+                    </Button>
+                  </Flex>
+                ) : (
+                  <Flex justify="space-between" style={{ marginTop: "10px" }}>
+                    <Button onClick={() => setStep("selectSeat")}>
+                      Trở lại
+                    </Button>
+                    <Button type="primary" onClick={handleBook}>
+                      Đặt vé
+                    </Button>
+                  </Flex>
+                )}
               </div>
             )}
           </Card>

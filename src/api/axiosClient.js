@@ -1,15 +1,11 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
-
-// axiosClient.interceptors.request.use(async (config) => {
-//   if (config.data) {
-//     config.headers["Content-Type"] = "application/json";
-//   }
-//   return config;
-// });
 
 axiosClient.interceptors.response.use(
   (response) => {

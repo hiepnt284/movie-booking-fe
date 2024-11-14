@@ -75,15 +75,15 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
   };
     const handleDelete = async (roomId) => {
       Modal.confirm({
-        title: `Are you sure you want to delete this room with id = ${roomId}?`,
-        okText: "Yes",
+        title: `Bạn có chắc muốn xóa phòng với id = ${roomId}?`,
+        okText: "Có",
         okType: "danger",
-        cancelText: "No",
+        cancelText: "Không",
         onOk: async () => {
           try {
             await roomApi.delete(roomId);
-            message.success("Room deleted successfully");
-            fetchRoomAndType();
+            message.success("Xóa phòng chiếu thành công");
+            fetchRoomAndType(theaterId);
           } catch (error) {
             message.error(error.response?.data?.message || "Có lỗi xảy ra.");
           } finally {
@@ -120,7 +120,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
           roomTypeId,
         };
         await roomApi.update(editingRoom.id, roomData);
-        message.success("Room update successfully");
+        message.success("Cập nhật phòng chiếu thành công");
       } else {
         const { name, roomTypeId, row, col } = value;
 
@@ -132,7 +132,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
           theaterId,
         };
         await roomApi.create(roomData);
-        message.success("Room created successfully");
+        message.success("Tạo phòng chiếu thành công");
       }
       handleCancelAddRoomModal();
       fetchRoomAndType(theaterId);
@@ -146,19 +146,19 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
 
   const columns = [
     {
-      title: "ID",
+      title: "Mã",
       dataIndex: "id",
     },
     {
-      title: "Name",
+      title: "Tên",
       dataIndex: "name",
     },
     {
-      title: "Room Type",
+      title: "Loại phòng",
       dataIndex: "roomTypeName",
     },
     {
-      title: "Actions",
+      title: "Hành động",
       dataIndex: "actions",
       render: (_, record) => (
         <Space size="middle">
@@ -168,7 +168,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
             loading={loading}
             type="primary"
           >
-            Manage seat
+            Quản lý ghế
           </Button>
           <Button
             icon={<EditOutlined />}
@@ -176,7 +176,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
             loading={loading}
             type="primary"
           >
-            Edit
+            Chỉnh sửa
           </Button>
           <Button
             icon={<DeleteOutlined />}
@@ -184,7 +184,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
             onClick={() => handleDelete(record.id)}
             loading={loading}
           >
-            Delete
+            Xóa
           </Button>
         </Space>
       ),
@@ -225,7 +225,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
         />
         <Modal
           open={addRoomModalVisible}
-          title={editingRoom ? "Edit room" : "Add room"}
+          title={editingRoom ? "Chỉnh sửa phòng" : "Thêm phòng"}
           onCancel={handleCancelAddRoomModal}
           footer={null}
           destroyOnClose
@@ -271,7 +271,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
                 <Col span={12}>
                   <Form.Item
                     name="row"
-                    label="Số hàng"
+                    label="Số hàng ghế"
                     rules={[
                       { required: true, message: "Vui lòng nhập số hàng" },
                     ]}
@@ -286,7 +286,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
                 <Col span={12}>
                   <Form.Item
                     name="col"
-                    label="Số cột"
+                    label="Số cột ghế"
                     rules={[
                       { required: true, message: "Vui lòng nhập số cột" },
                     ]}

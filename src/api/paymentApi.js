@@ -1,8 +1,7 @@
-import { axiosClient } from "./axiosClient";
-
+import axiosAuth from "./axiosAuth";
 const paymentApi = {};
 
 paymentApi.createVnPayPayment = (showTimeData) => {
-  return axiosClient.post("/payment/vn-pay", showTimeData);
+  return axiosAuth.post("/payment/vn-pay", showTimeData);
 };
 export default paymentApi;

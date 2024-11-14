@@ -120,7 +120,7 @@ const ManageShowing = () => {
       handleConfirm(); // Tải lại danh sách suất chiếu sau khi thêm hoặc cập nhật
     } catch (error) {
       console.log(error);
-      message.error("Có lỗi xảy ra!");
+      message.error("Thời gian bị trùng với suất chiếu khác");
     }
   };
 
@@ -203,6 +203,7 @@ const ManageShowing = () => {
         <DatePicker
           style={{ width: 200 }}
           onChange={(date, dateString) => setSelectedDate(dateString)}
+          placeholder="Chọn ngày"
         />
 
         <Button type="primary" onClick={handleConfirm}>
@@ -210,16 +211,15 @@ const ManageShowing = () => {
         </Button>
       </Space>
 
-      {/* Hiển thị danh sách suất chiếu theo phòng */}
-      {data.length == 0 && (
+      {/* {data.length == 0 && (
         <Title style={{ marginTop: "30px" }} level={5}>
           Chưa có phòng nào
         </Title>
-      )}
+      )} */}
       {data.map((room) => (
         <div key={room.roomResponse.id} style={{ marginTop: "20px" }}>
           <Title level={5}>
-            Phòng {room.roomResponse.name} - {room.roomResponse.roomTypeName}
+            {room.roomResponse.name} - {room.roomResponse.roomTypeName}
           </Title>
           <Table
             columns={columns}

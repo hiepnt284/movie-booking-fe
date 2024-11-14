@@ -1,15 +1,24 @@
 import { axiosClient } from "./axiosClient";
 import FormData from "form-data";
+import axiosAuth from "./axiosAuth"
 
 const movieApi = {};
 
 movieApi.getAll = (params) => {
-  return axiosClient.get("/movie", { params });
+  return axiosAuth.get("/movie", { params });
 };
 
 movieApi.getAllActive = () => {
-  return axiosClient.get("/movie/get")
+  return axiosClient.get("/movie/active");
+};
+
+movieApi.getNowShowing = () => {
+  return axiosClient.get("/movie/now-showing");
 }
+
+movieApi.getComingSoon = () => {
+  return axiosClient.get("/movie/coming-soon");
+};
 
 movieApi.get = (movieId) => {
   return axiosClient.get(`/movie/${movieId}`);
@@ -25,7 +34,7 @@ movieApi.create = (movieData, posterFile) => {
     formData.append("poster", posterFile);
   }
 
-  return axiosClient.post("/movie", formData, {
+  return axiosAuth.post("/movie", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -42,7 +51,7 @@ movieApi.update = (movieId, movieData, posterFile) => {
     formData.append("poster", posterFile);
   }
 
-  return axiosClient.put(`/movie/${movieId}`, formData, {
+  return axiosAuth.put(`/movie/${movieId}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -51,7 +60,7 @@ movieApi.update = (movieId, movieData, posterFile) => {
 
 // Delete a movie
 movieApi.delete = (movieId) => {
-  return axiosClient.delete(`/movie/${movieId}`);
+  return axiosAuth.delete(`/movie/${movieId}`);
 };
 
 export default movieApi;

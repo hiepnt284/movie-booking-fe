@@ -35,7 +35,7 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  const { loading, error, token } = useSelector((state) => state.auth);
+  const { loading, user } = useSelector((state) => state.auth);
 
   const handleLogin = async (values) => {
     const payload = {
@@ -44,8 +44,11 @@ const LoginForm = () => {
     };
     dispatch(login({ payload, isLoginGg: false }))
       .unwrap()
-      .then(() => {
+      .then((res) => {
         dispatch(closeModal());
+        if (res.userResponse.role == "ADMIN") {
+          navigate("admin")
+        }
         message.success("Đăng nhập thành công");
       })
       .catch((error) => {

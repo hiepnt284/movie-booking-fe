@@ -8,8 +8,6 @@ import {
   Upload,
   Space,
   message,
-  Select,
-  DatePicker,
   InputNumber,
   Switch,
   Flex,
@@ -24,13 +22,12 @@ import {
   UploadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import theaterApi from "../api/theaterApi";
+import carouselApi from "../api/carouselApi";
 import Title from "antd/es/typography/Title";
 import useDebounce from "../customHook/useDebounce";
-import ManageRoomModal from "../components/ManageRoomModal";
 
 const { TextArea } = Input;
-const ManageTheater = () => {
+const ManageCarousel = () => {
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 4,
@@ -40,25 +37,21 @@ const ManageTheater = () => {
     sortBy: "id",
     sortDirection: "desc",
   });
-  const [theaters, setTheaters] = useState([]);
-  const [theaterId, setTheaterId] = useState();
-  const [imgFileList, SetImgFileList] = useState([]);
+  const [carousels, SetCarousels] = useState([]);
+  const [imgFileList, setImgFileList] = useState([]);
 
   const [modalVisible, setModalVisible] = useState(false);
-
-  const [modalManageRoomVisible, setModalManageRoomVisible] = useState(false);
-
-  const [editingTheater, setEditingTheater] = useState(null);
-  const [theaterForm] = Form.useForm();
+  const [editingCarousel, setEditingCarousel] = useState(null);
+  const [carouselForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   const [keyword, setKeyword] = useState("");
 
   const debouncedKeyword = useDebounce(keyword, 800);
-  const fetchTheaters = async (params = {}) => {
+  const fetchCarousels = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await theaterApi.getAll({
+      const response = await carouselApi.getAll({
         page: params.pagination?.current || pagination.current,
         pageSize: params.pagination?.pageSize || pagination.pageSize,
         sortBy: params.sorter?.field || sort.sortBy,
@@ -69,7 +62,7 @@ const ManageTheater = () => {
         keyword: params.keyword,
       });
 
-      setTheaters(response.result.content);
+      SetCarousels(response.result.content);
 
       setPagination({
         ...pagination,
@@ -94,7 +87,7 @@ const ManageTheater = () => {
 
   // Gọi API khi debouncedKeyword thay đổi
   useEffect(() => {
-    fetchTheaters({
+    fetchCarousels({
       pagination: { current: 1 },
       keyword: debouncedKeyword,
     });
@@ -104,29 +97,27 @@ const ManageTheater = () => {
     setLoading(true);
     console.log(value);
 
-    const { name, address, email, phone, description, img } = value;
+    const { name, link, isActive, img } = value;
 
-    const theaterData = {
+    const carouselData = {
       name,
-      address,
-      email,
-      phone,
-      description,
+      link,
+      isActive,
     };
 
-    const imgFile =
+    const posterFile =
       img && img?.fileList?.length > 0 ? img.fileList[0].originFileObj : null;
 
     try {
-      if (editingTheater) {
-        await theaterApi.update(editingTheater.id, theaterData, imgFile);
-        message.success("Cập nhật rạp thành công");
+      if (editingCarousel) {
+        await carouselApi.update(editingCarousel.id, carouselData, posterFile);
+        message.success("Cập nhật thành công");
       } else {
-        await theaterApi.create(theaterData, imgFile);
-        message.success("Thêm mới rạp thành công");
+        await carouselApi.create(carouselData, posterFile);
+        message.success("Thêm mới thành công");
       }
       handleCancel();
-      fetchTheaters();
+      fetchCarousels();
     } catch (error) {
       message.error(error.response?.data?.message || "Có lỗi xảy ra.");
       console.log(error);
@@ -137,48 +128,44 @@ const ManageTheater = () => {
 
   const handleCancel = () => {
     setModalVisible(false);
-    setEditingTheater(null);
-    theaterForm.resetFields();
-    SetImgFileList([]);
+    setEditingCarousel(null);
+    carouselForm.resetFields();
+    setImgFileList([]);
   };
 
-  const handleCancelManageRoom = () => {
-    setModalManageRoomVisible(false);
-  };
-
-  const openModal = (theater = null) => {
-    if (theater) {
-      const initialImgFileList = theater?.img
+  const openModal = (carousel = null) => {
+    if (carousel) {
+      const initialImgFileList = carousel?.img
         ? [
             {
               uid: "-1", // Unique identifier for the file
               name: "img.jpg", // Tên file hiển thị
               status: "done", // Trạng thái đã upload thành công
-              url: theater.img, // URL từ database
+              url: carousel.img, // URL từ database
             },
           ]
         : [];
 
-      SetImgFileList(initialImgFileList); // Đặt fileList cho img
+      setImgFileList(initialImgFileList); // Đặt fileList cho img
 
-      setEditingTheater(theater);
-      theaterForm.setFieldsValue({
-        ...theater,
+      setEditingCarousel(carousel);
+      carouselForm.setFieldsValue({
+        ...carousel,
       });
     } else {
-      theaterForm.resetFields();
+      carouselForm.resetFields();
     }
     setModalVisible(true);
   };
 
   // Hàm xử lý khi người dùng chọn file
   const handleImgChange = ({ fileList }) => {
-    SetImgFileList(fileList); // Cập nhật fileList khi có file mới được chọn
+    setImgFileList(fileList); // Cập nhật fileList khi có file mới được chọn
   };
 
   useEffect(() => {
     try {
-      fetchTheaters();
+      fetchCarousels();
     } catch (error) {
       message.error(error.response?.data?.message || "Có lỗi xảy ra.");
     }
@@ -186,7 +173,7 @@ const ManageTheater = () => {
 
   const handleTableChange = (pagination, filters, sorter, extra) => {
     try {
-      fetchTheaters({
+      fetchCarousels({
         pagination,
         sorter,
         keyword,
@@ -196,10 +183,10 @@ const ManageTheater = () => {
     }
   };
 
-  const handleEdit = async (theaterId) => {
+  const handleEdit = async (carouselId) => {
     try {
       setLoading(true);
-      const res = await theaterApi.get(theaterId);
+      const res = await carouselApi.get(carouselId);
       openModal(res.result);
     } catch (error) {
       message.error(error.response?.data?.message || "Có lỗi xảy ra.");
@@ -209,29 +196,17 @@ const ManageTheater = () => {
     }
   };
 
-  const handleManageRoom = async (theaterId) => {
-    try {
-      setTheaterId(theaterId);
-      setModalManageRoomVisible(true);
-    } catch (error) {
-      message.error(error.response?.data?.message || "Có lỗi xảy ra.");
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (theaterId) => {
+  const handleDelete = async (carouselId) => {
     Modal.confirm({
-      title: `Bạn có chắc muốn xóa rạp với id = ${theaterId} ?`,
+      title: "Bạn có chắc muốn xóa",
       okText: "Có",
       okType: "danger",
       cancelText: "Không",
       onOk: async () => {
         try {
-          await theaterApi.delete(theaterId);
-          message.success("Xóa rạp thành công");
-          fetchTheaters();
+          await carouselApi.delete(carouselId);
+          message.success("Xóa thành công");
+          fetchCarousels();
         } catch (error) {
           message.error(error.response?.data?.message || "Có lỗi xảy ra.");
         } finally {
@@ -242,7 +217,7 @@ const ManageTheater = () => {
   };
   const columns = [
     {
-      title: "Mã rạp",
+      title: "Mã",
       dataIndex: "id",
       sorter: true,
     },
@@ -252,18 +227,8 @@ const ManageTheater = () => {
       sorter: true,
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      sorter: true,
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      sorter: true,
-    },
-    {
-      title: "Hotline",
-      dataIndex: "phone",
+      title: "Liên kết ",
+      dataIndex: "link",
       sorter: true,
     },
     {
@@ -277,18 +242,16 @@ const ManageTheater = () => {
         ),
     },
     {
+      title: "Trạng thái",
+      dataIndex: "isActive",
+      render: (isActive) => (isActive ? "Hoạt động" : "Không"),
+      sorter: true,
+    },
+    {
       title: "Hành động",
       dataIndex: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => handleManageRoom(record.id)}
-            loading={loading}
-            type="primary"
-          >
-            Quản lý phòng
-          </Button>
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEdit(record.id)}
@@ -324,7 +287,7 @@ const ManageTheater = () => {
       }}
     >
       <div>
-        <Title level={4}>Quản lý rạp</Title>
+        <Title level={4}>Quản lý carousel</Title>
         <Flex gap={20}>
           <Input
             size="middle"
@@ -339,14 +302,14 @@ const ManageTheater = () => {
             size="middle"
             onClick={() => openModal()}
           >
-            Thêm rạp mới
+            Thêm mới
           </Button>
         </Flex>
         <br />
         <Table
           columns={columns}
           rowKey={(record) => record.id}
-          dataSource={theaters}
+          dataSource={carousels}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
@@ -364,7 +327,7 @@ const ManageTheater = () => {
 
       <Modal
         open={modalVisible}
-        title={editingTheater ? "Chỉnh sửa rạp" : "Thêm mới rạp"}
+        title={editingCarousel ? "Chỉnh sửa carousel" : "Thêm carousel"}
         onCancel={handleCancel}
         footer={null}
         destroyOnClose
@@ -374,76 +337,43 @@ const ManageTheater = () => {
         }}
         width={"1000px"}
       >
-        <Form form={theaterForm} layout="vertical" onFinish={handleFinish}>
+        <Form form={carouselForm} layout="vertical" onFinish={handleFinish}>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item
                 name="name"
                 label="Tên"
-                rules={[{ required: true, message: "Vui lòng nhập tên rạp" }]}
-              >
-                <Input placeholder="Nhập tên rạp" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="address"
-                label="Địa chỉ"
                 rules={[
-                  { required: true, message: "Vui lòng nhập địa chỉ rạp" },
+                  { required: true, message: "Vui lòng nhập tên carousel" },
                 ]}
               >
-                <Input placeholder="Nhập địa chỉ rạp" />
+                <Input placeholder="Nhập tên carousel" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="link"
+                label="Liên kết"
+                rules={[
+                  { required: true, message: "Vui lòng nhập liên kết" },
+                ]}
+              >
+                <Input placeholder="Nhập liên kết" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="isActive"
+                label="Trạng thái"
+                valuePropName="checked"
+                initialValue={true}
+              >
+                <Switch defaultChecked={true} />
               </Form.Item>
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="email"
-                label="Email"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập email",
-                  },
-                ]}
-              >
-                <Input type="email" placeholder="Nhập email" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="phone"
-                label="Hotline"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập hotline",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Nhập hotline"
-                  onKeyDown={(event) => {
-                    if (!/[0-9]/.test(event.key)) {
-                      event.preventDefault(); // Chặn ký tự không phải số
-                    }
-                  }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item
-            name="description"
-            label="Mô tả"
-            rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
-          >
-            <TextArea rows={4} placeholder="Nhập mô tả rạp" />
-          </Form.Item>
-
-          <Form.Item name="img" label="Image">
+          <Form.Item name="img" label="Ảnh">
             <Upload
               listType="picture"
               beforeUpload={() => false} // Prevent automatic upload
@@ -460,20 +390,14 @@ const ManageTheater = () => {
             <Space style={{ display: "flex", justifyContent: "flex-end" }}>
               <Button onClick={handleCancel}>Hủy</Button>
               <Button type="primary" htmlType="submit" loading={loading}>
-                Tạo
+                Xác nhận
               </Button>
             </Space>
           </Form.Item>
         </Form>
       </Modal>
-
-      <ManageRoomModal
-        isManageRoomOpen={modalManageRoomVisible}
-        handleClose={handleCancelManageRoom}
-        theaterId={theaterId}
-      />
     </ConfigProvider>
   );
 };
 
-export default ManageTheater;
+export default ManageCarousel;

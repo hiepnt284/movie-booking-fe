@@ -23,13 +23,29 @@ const items = [
     key: "manage-movie",
     label: "Quản lý phim",
   },
+  {
+    key: "manage-food",
+    label: "Quản lý đồ ăn",
+  },
+  {
+    key: "manage-carousel",
+    label: "Quản lý carousel",
+  },
+  {
+    key: "scan-qr",
+    label: "Quét vé",
+  },
+  {
+    key: "manage-post",
+    label: "Quản lý post",
+  },
 ];
 const AppAdmin = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-
+  const refreshToken = localStorage.getItem("refreshToken");
   const navigate = useNavigate();
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -89,7 +105,7 @@ const AppAdmin = () => {
               <Button>{user.fullName}</Button>
               <Button
                 onClick={() => {
-                  dispatch(logout());
+                  dispatch(logout({ refreshToken }));
                   navigate("/");
                 }}
               >

@@ -18,10 +18,27 @@ export const login = createAsyncThunk(
         return response?.result;
       }
     } catch (error) {
+      console.log(error);
       return rejectWithValue(error.response.data);
     }
   }
 );
+
+// Thực hiện đăng xuất
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await authApi.logoutUser(data);
+      
+      return response;
+    } catch (error) {
+      console.log(error);
+      return rejectWithValue(error.response?.data || "Đăng xuất thất bại");
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
@@ -31,18 +48,7 @@ const authSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {
-    logout(state) {
-      state.user = null;
-      state.token = null;
-      state.refreshToken = null;
-      state.loading = false;
-      state.error = null;
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       // Đăng nhập
@@ -65,9 +71,27 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Đăng nhập thất bại";
+      })
+
+      // Đăng xuất
+      .addCase(logout.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.refreshToken = null;
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Đăng xuất thất bại";
       });
   },
 });
 
-export const { logout } = authSlice.actions;
 export default authSlice.reducer;

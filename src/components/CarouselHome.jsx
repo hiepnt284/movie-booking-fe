@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Carousel } from "antd";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, Spin, Alert } from "antd";
+import carouselApi from "../api/carouselApi";
+import { Link } from "react-router-dom";
+
 const contentStyle = {
   height: "600px",
   color: "#fff",
@@ -10,6 +13,27 @@ const contentStyle = {
 };
 
 const CarouselHome = () => {
+  const [carousels, setCarousels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchCarousels = async () => {
+    try {
+      setLoading(true);
+      setError(null); // Reset error trước mỗi lần gọi API
+      const data = await carouselApi.getAllForUser();
+      setCarousels(data.result || []);
+    } catch (error) {
+      setError("Failed to fetch carousel images");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCarousels();
+  }, []);
+
   return (
     <ConfigProvider
       theme={{
@@ -26,41 +50,36 @@ const CarouselHome = () => {
         },
       }}
     >
-      <Carousel arrows autoplay>
-        <div>
-          <h3 style={contentStyle}>
-            <img
-              src="https://bhdstar.vn/wp-content/uploads/2024/10/referenceSchemeHeadOfficeallowPlaceHoldertrueheight1069ldapp-15.jpg"
-              alt=""
-              width={"100%"}
-              height={"100%"}
-              style={{ objectFit: "cover" }}
-            />
-          </h3>
-        </div>
-        <div>
-          <h3 style={contentStyle}>
-            <img
-              src="https://bhdstar.vn/wp-content/uploads/2024/10/referenceSchemeHeadOfficeallowPlaceHoldertrueheight1069ldapp-17.jpg"
-              alt=""
-              width={"100%"}
-              height={"100%"}
-              style={{ objectFit: "cover" }}
-            />
-          </h3>
-        </div>
-        <div>
-          <h3 style={contentStyle}>
-            <img
-              src="https://bhdstar.vn/wp-content/uploads/2024/10/referenceSchemeHeadOfficeallowPlaceHoldertrueheight1069ldapp.png"
-              alt=""
-              width={"100%"}
-              height={"100%"}
-              style={{ objectFit: "cover" }}
-            />
-          </h3>
-        </div>
-      </Carousel>
+      {loading ? (
+        <Spin
+          tip="Loading..."
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "50px",
+          }}
+        />
+      ) : error ? (
+        <Alert message="Error" description={error} type="error" showIcon />
+      ) : (
+        <Carousel arrows autoplay>
+          {carousels.map((item, index) => (
+            <div key={index}>
+              <Link to={item.link}>
+                <h3 style={contentStyle}>
+                  <img
+                    src={item.img}
+                    alt={`Carousel item ${index + 1}`}
+                    width="100%"
+                    height="100%"
+                    style={{ objectFit: "cover" }}
+                  />
+                </h3>
+              </Link>
+            </div>
+          ))}
+        </Carousel>
+      )}
     </ConfigProvider>
   );
 };

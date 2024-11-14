@@ -19,6 +19,15 @@ import ManageTheater from "./pages/ManageTheater.jsx";
 import ManageShowing from "./pages/ManageShowing.jsx";
 import ShowTimeDetail from "./pages/ShowTimeDetail.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
+import ManageFood from "./pages/ManageFood.jsx";
+import PaymentFail from "./pages/PaymentFail.jsx";
+import ScanQR from "./pages/ScanQR.jsx";
+import UserPage from "./pages/UserPage.jsx";
+import CinemaDetail from "./pages/CinemaDetail.jsx";
+import Movie from "./pages/Movie.jsx";
+import ManageCarousel from "./pages/ManageCarousel.jsx";
+import ManagePost from "./pages/ManagePost.jsx";
+import SaleDetail from "./pages/SaleDetail.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,8 +44,20 @@ const router = createBrowserRouter([
         element: <Cinema />,
       },
       {
+        path: "cinema/:cinemaId",
+        element: <CinemaDetail />,
+      },
+      {
         path: "sale",
         element: <Sale />,
+      },
+      {
+        path: "sale/:saleId",
+        element: <SaleDetail />,
+      },
+      {
+        path: "movie",
+        element: <Movie />,
       },
       {
         path: "movie/:movieId",
@@ -51,9 +72,27 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "payment-success",
+        path: "payment-success/:bookingId",
         element: (
-          <PaymentSuccess/>
+          <ProtectedRoute>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "payment-fail",
+        element: (
+          <ProtectedRoute>
+            <PaymentFail />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "user",
+        element: (
+          <ProtectedRoute>
+            <UserPage />
+          </ProtectedRoute>
         ),
       },
     ],
@@ -86,6 +125,22 @@ const router = createBrowserRouter([
       {
         path: "manage-showing",
         element: <ManageShowing />,
+      },
+      {
+        path: "manage-food",
+        element: <ManageFood />,
+      },
+      {
+        path: "manage-carousel",
+        element: <ManageCarousel />,
+      },
+      {
+        path: "manage-post",
+        element: <ManagePost />,
+      },
+      {
+        path: "scan-qr",
+        element: <ScanQR />,
       },
     ],
   },

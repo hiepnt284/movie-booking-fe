@@ -8,8 +8,6 @@ import {
   Upload,
   Space,
   message,
-  Select,
-  DatePicker,
   InputNumber,
   Switch,
   Flex,
@@ -24,13 +22,12 @@ import {
   UploadOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import theaterApi from "../api/theaterApi";
+import foodApi from "../api/foodApi";
 import Title from "antd/es/typography/Title";
 import useDebounce from "../customHook/useDebounce";
-import ManageRoomModal from "../components/ManageRoomModal";
 
 const { TextArea } = Input;
-const ManageTheater = () => {
+const ManageFood = () => {
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 4,
@@ -40,25 +37,21 @@ const ManageTheater = () => {
     sortBy: "id",
     sortDirection: "desc",
   });
-  const [theaters, setTheaters] = useState([]);
-  const [theaterId, setTheaterId] = useState();
-  const [imgFileList, SetImgFileList] = useState([]);
+  const [foods, setFoods] = useState([]);
+  const [imgFileList, setImgFileList] = useState([]);
 
   const [modalVisible, setModalVisible] = useState(false);
-
-  const [modalManageRoomVisible, setModalManageRoomVisible] = useState(false);
-
-  const [editingTheater, setEditingTheater] = useState(null);
-  const [theaterForm] = Form.useForm();
+  const [editingFood, setEditingFood] = useState(null);
+  const [foodForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   const [keyword, setKeyword] = useState("");
 
   const debouncedKeyword = useDebounce(keyword, 800);
-  const fetchTheaters = async (params = {}) => {
+  const fetchFoods = async (params = {}) => {
     setLoading(true);
     try {
-      const response = await theaterApi.getAll({
+      const response = await foodApi.getAll({
         page: params.pagination?.current || pagination.current,
         pageSize: params.pagination?.pageSize || pagination.pageSize,
         sortBy: params.sorter?.field || sort.sortBy,
@@ -69,7 +62,7 @@ const ManageTheater = () => {
         keyword: params.keyword,
       });
 
-      setTheaters(response.result.content);
+      setFoods(response.result.content);
 
       setPagination({
         ...pagination,
@@ -94,7 +87,7 @@ const ManageTheater = () => {
 
   // Gọi API khi debouncedKeyword thay đổi
   useEffect(() => {
-    fetchTheaters({
+    fetchFoods({
       pagination: { current: 1 },
       keyword: debouncedKeyword,
     });
@@ -104,29 +97,30 @@ const ManageTheater = () => {
     setLoading(true);
     console.log(value);
 
-    const { name, address, email, phone, description, img } = value;
+    const { name, description, price, isActive, img } = value;
 
-    const theaterData = {
+    const foodData = {
       name,
-      address,
-      email,
-      phone,
       description,
+      price,
+      isActive,
     };
 
-    const imgFile =
-      img && img?.fileList?.length > 0 ? img.fileList[0].originFileObj : null;
+    const posterFile =
+      img && img?.fileList?.length > 0
+        ? img.fileList[0].originFileObj
+        : null;
 
     try {
-      if (editingTheater) {
-        await theaterApi.update(editingTheater.id, theaterData, imgFile);
-        message.success("Cập nhật rạp thành công");
+      if (editingFood) {
+        await foodApi.update(editingFood.id, foodData, posterFile);
+        message.success("Cập nhật thành công");
       } else {
-        await theaterApi.create(theaterData, imgFile);
-        message.success("Thêm mới rạp thành công");
+        await foodApi.create(foodData, posterFile);
+        message.success("Thêm mới thành công");
       }
       handleCancel();
-      fetchTheaters();
+      fetchFoods();
     } catch (error) {
       message.error(error.response?.data?.message || "Có lỗi xảy ra.");
       console.log(error);
@@ -137,48 +131,45 @@ const ManageTheater = () => {
 
   const handleCancel = () => {
     setModalVisible(false);
-    setEditingTheater(null);
-    theaterForm.resetFields();
-    SetImgFileList([]);
+    setEditingFood(null);
+    foodForm.resetFields();
+    setImgFileList([]);
   };
 
-  const handleCancelManageRoom = () => {
-    setModalManageRoomVisible(false);
-  };
+  const openModal = (food = null) => {
+    if (food) {
 
-  const openModal = (theater = null) => {
-    if (theater) {
-      const initialImgFileList = theater?.img
+      const initialImgFileList = food?.img
         ? [
             {
               uid: "-1", // Unique identifier for the file
               name: "img.jpg", // Tên file hiển thị
               status: "done", // Trạng thái đã upload thành công
-              url: theater.img, // URL từ database
+              url: food.img, // URL từ database
             },
           ]
         : [];
 
-      SetImgFileList(initialImgFileList); // Đặt fileList cho img
+      setImgFileList(initialImgFileList); // Đặt fileList cho img
 
-      setEditingTheater(theater);
-      theaterForm.setFieldsValue({
-        ...theater,
+      setEditingFood(food);
+      foodForm.setFieldsValue({
+        ...food
       });
     } else {
-      theaterForm.resetFields();
+      foodForm.resetFields();
     }
     setModalVisible(true);
   };
 
   // Hàm xử lý khi người dùng chọn file
   const handleImgChange = ({ fileList }) => {
-    SetImgFileList(fileList); // Cập nhật fileList khi có file mới được chọn
+    setImgFileList(fileList); // Cập nhật fileList khi có file mới được chọn
   };
 
   useEffect(() => {
     try {
-      fetchTheaters();
+      fetchFoods();
     } catch (error) {
       message.error(error.response?.data?.message || "Có lỗi xảy ra.");
     }
@@ -186,7 +177,7 @@ const ManageTheater = () => {
 
   const handleTableChange = (pagination, filters, sorter, extra) => {
     try {
-      fetchTheaters({
+      fetchFoods({
         pagination,
         sorter,
         keyword,
@@ -196,10 +187,10 @@ const ManageTheater = () => {
     }
   };
 
-  const handleEdit = async (theaterId) => {
+  const handleEdit = async (foodId) => {
     try {
       setLoading(true);
-      const res = await theaterApi.get(theaterId);
+      const res = await foodApi.get(foodId);
       openModal(res.result);
     } catch (error) {
       message.error(error.response?.data?.message || "Có lỗi xảy ra.");
@@ -209,29 +200,17 @@ const ManageTheater = () => {
     }
   };
 
-  const handleManageRoom = async (theaterId) => {
-    try {
-      setTheaterId(theaterId);
-      setModalManageRoomVisible(true);
-    } catch (error) {
-      message.error(error.response?.data?.message || "Có lỗi xảy ra.");
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (theaterId) => {
+  const handleDelete = async (foodId) => {
     Modal.confirm({
-      title: `Bạn có chắc muốn xóa rạp với id = ${theaterId} ?`,
+      title: "Bạn có chắc muốn xóa",
       okText: "Có",
       okType: "danger",
       cancelText: "Không",
       onOk: async () => {
         try {
-          await theaterApi.delete(theaterId);
-          message.success("Xóa rạp thành công");
-          fetchTheaters();
+          await foodApi.delete(foodId);
+          message.success("Xóa thành công");
+          fetchFoods();
         } catch (error) {
           message.error(error.response?.data?.message || "Có lỗi xảy ra.");
         } finally {
@@ -242,7 +221,7 @@ const ManageTheater = () => {
   };
   const columns = [
     {
-      title: "Mã rạp",
+      title: "Mã",
       dataIndex: "id",
       sorter: true,
     },
@@ -252,18 +231,18 @@ const ManageTheater = () => {
       sorter: true,
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
+      title: "Mô tả",
+      dataIndex: "description",
       sorter: true,
     },
     {
-      title: "Email",
-      dataIndex: "email",
+      title: "Giá bán",
+      dataIndex: "price",
       sorter: true,
     },
     {
-      title: "Hotline",
-      dataIndex: "phone",
+      title: "Đã bán",
+      dataIndex: "sold",
       sorter: true,
     },
     {
@@ -271,24 +250,22 @@ const ManageTheater = () => {
       dataIndex: "img",
       render: (text) =>
         text ? (
-          <img src={text} alt="Image" style={{ width: 150, height: 75 }} />
+          <img src={text} alt="Image" style={{ width: 50, height: 75 }} />
         ) : (
           "N/A"
         ),
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "isActive",
+      render: (isActive) => (isActive ? "Hoạt động" : "Không"),
+      sorter: true,
     },
     {
       title: "Hành động",
       dataIndex: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => handleManageRoom(record.id)}
-            loading={loading}
-            type="primary"
-          >
-            Quản lý phòng
-          </Button>
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEdit(record.id)}
@@ -324,7 +301,7 @@ const ManageTheater = () => {
       }}
     >
       <div>
-        <Title level={4}>Quản lý rạp</Title>
+        <Title level={4}>Quản lý đồ ăn</Title>
         <Flex gap={20}>
           <Input
             size="middle"
@@ -339,14 +316,14 @@ const ManageTheater = () => {
             size="middle"
             onClick={() => openModal()}
           >
-            Thêm rạp mới
+            Thêm đồ ăn mới
           </Button>
         </Flex>
         <br />
         <Table
           columns={columns}
           rowKey={(record) => record.id}
-          dataSource={theaters}
+          dataSource={foods}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
@@ -364,7 +341,7 @@ const ManageTheater = () => {
 
       <Modal
         open={modalVisible}
-        title={editingTheater ? "Chỉnh sửa rạp" : "Thêm mới rạp"}
+        title={editingFood ? "Chỉnh sửa đồ ăn" : "Thêm đồ ăn"}
         onCancel={handleCancel}
         footer={null}
         destroyOnClose
@@ -374,76 +351,58 @@ const ManageTheater = () => {
         }}
         width={"1000px"}
       >
-        <Form form={theaterForm} layout="vertical" onFinish={handleFinish}>
+        <Form form={foodForm} layout="vertical" onFinish={handleFinish}>
           <Row gutter={16}>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item
                 name="name"
                 label="Tên"
-                rules={[{ required: true, message: "Vui lòng nhập tên rạp" }]}
+                rules={[{ required: true, message: "Vui lòng nhập tên đồ ăn" }]}
               >
-                <Input placeholder="Nhập tên rạp" />
+                <Input placeholder="Nhập tên đồ ăn" />
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item
-                name="address"
-                label="Địa chỉ"
+                name="price"
+                label="Giá bán"
                 rules={[
-                  { required: true, message: "Vui lòng nhập địa chỉ rạp" },
+                  { required: true, message: "Vui lòng nhập giá bán" },
+                  {
+                    type: "number",
+                    min: 1000,
+                    message: "Giá bán tối thiểu 1000",
+                  },
                 ]}
               >
-                <Input placeholder="Nhập địa chỉ rạp" />
+                <InputNumber
+                  min={1000}
+                  placeholder="Nhập giá bán"
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                name="isActive"
+                label="Trạng thái"
+                valuePropName="checked"
+                initialValue={true}
+              >
+                <Switch defaultChecked={true} />
               </Form.Item>
             </Col>
           </Row>
 
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="email"
-                label="Email"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập email",
-                  },
-                ]}
-              >
-                <Input type="email" placeholder="Nhập email" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="phone"
-                label="Hotline"
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập hotline",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Nhập hotline"
-                  onKeyDown={(event) => {
-                    if (!/[0-9]/.test(event.key)) {
-                      event.preventDefault(); // Chặn ký tự không phải số
-                    }
-                  }}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
           <Form.Item
             name="description"
             label="Mô tả"
             rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
           >
-            <TextArea rows={4} placeholder="Nhập mô tả rạp" />
+            <TextArea rows={4} placeholder="Nhập mô tả" />
           </Form.Item>
 
-          <Form.Item name="img" label="Image">
+          <Form.Item name="img" label="Ảnh">
             <Upload
               listType="picture"
               beforeUpload={() => false} // Prevent automatic upload
@@ -460,20 +419,14 @@ const ManageTheater = () => {
             <Space style={{ display: "flex", justifyContent: "flex-end" }}>
               <Button onClick={handleCancel}>Hủy</Button>
               <Button type="primary" htmlType="submit" loading={loading}>
-                Tạo
+                Xác nhận
               </Button>
             </Space>
           </Form.Item>
         </Form>
       </Modal>
-
-      <ManageRoomModal
-        isManageRoomOpen={modalManageRoomVisible}
-        handleClose={handleCancelManageRoom}
-        theaterId={theaterId}
-      />
     </ConfigProvider>
   );
 };
 
-export default ManageTheater;
+export default ManageFood;

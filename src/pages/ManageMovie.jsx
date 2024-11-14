@@ -155,10 +155,10 @@ const ManageMovie = () => {
     try {
       if (editingMovie) {
         await movieApi.update(editingMovie.id, movieData, posterFile);
-        message.success("Movie update successfully");
+        message.success("Cập nhật phim thành công");
       } else {
         await movieApi.create(movieData, posterFile);
-        message.success("Movie created successfully");
+        message.success("Thêm mới phim thành công");
       }
       handleCancel();
       fetchMovies();
@@ -250,14 +250,14 @@ const ManageMovie = () => {
 
   const handleDelete = async (movieId) => {
     Modal.confirm({
-      title: "Are you sure you want to delete this movie?",
-      okText: "Yes",
+      title: `Bạn có chắc muốn xóa phim với id = ${movieId}`,
+      okText: "Có",
       okType: "danger",
-      cancelText: "No",
+      cancelText: "Không",
       onOk: async () => {
         try {
           await movieApi.delete(movieId);
-          message.success("Movie deleted successfully");
+          message.success("Xóa phim thành công");
           fetchMovies();
         } catch (error) {
           message.error(error.response?.data?.message || "Có lỗi xảy ra.");
@@ -269,32 +269,32 @@ const ManageMovie = () => {
   };
   const columns = [
     {
-      title: "ID",
+      title: "Mã phim",
       dataIndex: "id",
       sorter: true,
     },
     {
-      title: "Title",
+      title: "Tiêu đề",
       dataIndex: "title",
       sorter: true,
     },
     {
-      title: "Age Rating",
+      title: "Độ tuổi",
       dataIndex: "ageRating",
       sorter: true,
     },
     {
-      title: "Duration (min)",
+      title: "Thời lượng (phút)",
       dataIndex: "duration",
       sorter: true,
     },
     {
-      title: "Release Date",
+      title: "Ngày phát hành",
       dataIndex: "releaseDate",
       sorter: true,
     },
     {
-      title: "Poster",
+      title: "Ảnh",
       dataIndex: "poster",
       render: (text) =>
         text ? (
@@ -304,13 +304,13 @@ const ManageMovie = () => {
         ),
     },
     {
-      title: "Active",
+      title: "Trạng thái",
       dataIndex: "isActive",
-      render: (isActive) => (isActive ? "Yes" : "No"),
+      render: (isActive) => (isActive ? "Hoạt động" : "Không"),
       sorter: true,
     },
     {
-      title: "Actions",
+      title: "Hành động",
       dataIndex: "actions",
       render: (_, record) => (
         <Space size="middle">
@@ -320,7 +320,7 @@ const ManageMovie = () => {
             loading={loading}
             type="primary"
           >
-            Edit
+            Chỉnh sửa
           </Button>
           <Button
             icon={<DeleteOutlined />}
@@ -328,7 +328,7 @@ const ManageMovie = () => {
             onClick={() => handleDelete(record.id)}
             loading={loading}
           >
-            Delete
+            Xóa
           </Button>
         </Space>
       ),
@@ -389,7 +389,7 @@ const ManageMovie = () => {
 
       <Modal
         open={modalVisible}
-        title={editingMovie ? "Edit Movie" : "Add Movie"}
+        title={editingMovie ? "Chỉnh sửa phim" : "Thêm mới phim"}
         onCancel={handleCancel}
         footer={null}
         destroyOnClose
@@ -464,7 +464,7 @@ const ManageMovie = () => {
             <Col span={8}>
               <Form.Item
                 name="ageRating"
-                label="Đánh giá độ tuổi"
+                label="Độ tuổi"
                 rules={[
                   { required: true, message: "Vui lòng chọn đánh giá độ tuổi" },
                 ]}
@@ -482,19 +482,19 @@ const ManageMovie = () => {
             <Col span={8}>
               <Form.Item
                 name="duration"
-                label="Thời gian (phút)"
+                label="Thời lượng (phút)"
                 rules={[
-                  { required: true, message: "Vui lòng nhập thời gian" },
+                  { required: true, message: "Vui lòng nhập thời lượng" },
                   {
                     type: "number",
                     min: 1,
-                    message: "Thời gian phải tối thiểu 1 phút",
+                    message: "Thời lượng phải tối thiểu 1 phút",
                   },
                 ]}
               >
                 <InputNumber
                   min={1}
-                  placeholder="Nhập thời gian (phút)"
+                  placeholder="Nhập thời lượng (phút)"
                   style={{ width: "100%" }}
                 />
               </Form.Item>
@@ -530,7 +530,7 @@ const ManageMovie = () => {
             <Col span={4}>
               <Form.Item
                 name="isActive"
-                label="Active"
+                label="Trạng thái"
                 valuePropName="checked"
                 initialValue={true}
               >
@@ -547,7 +547,7 @@ const ManageMovie = () => {
             <TextArea rows={4} placeholder="Nhập mô tả phim" />
           </Form.Item>
 
-          <Form.Item name="poster" label="Poster">
+          <Form.Item name="poster" label="Ảnh">
             <Upload
               listType="picture"
               beforeUpload={() => false} // Prevent automatic upload

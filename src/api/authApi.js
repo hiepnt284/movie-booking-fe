@@ -11,15 +11,11 @@ authApi.loginWithGoogle = (params = {}) => {
 };
 
 authApi.logoutUser = (data) => {
-  return axiosClient.post("/auth/logout-once", data, {
-    withCredentials: true,
-  });
+  return axiosClient.post("/auth/logout-once", data);
 };
 
 authApi.refreshToken = async (data) => {
-  return axiosClient.post("/auth/refresh-token", data, {
-    withCredentials: true,
-  });
+  return axiosClient.post("/auth/refresh-token", data);
 };
 
 authApi.registerUser = (data) => {

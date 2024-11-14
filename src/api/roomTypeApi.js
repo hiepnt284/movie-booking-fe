@@ -1,10 +1,10 @@
-import { axiosClient } from "./axiosClient";
+import axiosAuth from "./axiosAuth";
 
 const roomTypeApi = {};
 
 
 roomTypeApi.getAll = () => {
-  return axiosClient.get("/roomtype/get");
+  return axiosAuth.get("/roomtype/get");
 };
 
 export default roomTypeApi;

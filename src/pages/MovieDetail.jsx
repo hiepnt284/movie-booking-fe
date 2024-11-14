@@ -84,7 +84,7 @@ const MovieDetail = () => {
 
   return (
     <div
-      style={{ minHeight: 600, padding: "20px 140px", background: "#e8e8e8" }}
+      style={{ minHeight: 600, padding: "20px 140px", background: "white" }}
     >
       <Row gutter={[50, 50]}>
         <Col span={8}>
@@ -92,27 +92,43 @@ const MovieDetail = () => {
             src={movie.poster}
             alt=""
             width={"100%"}
-            style={{ objectFit: "cover", borderRadius: "10px" }}
+            style={{ objectFit: "cover", borderRadius: "30px" }}
           />
         </Col>
         <Col span={16}>
-          <Title>{movie.title}</Title>
-          <Paragraph style={{fontSize:"18px"}}>{movie.description}</Paragraph>
-          <Paragraph style={{fontSize:"18px"}}><strong>PHÂN LOẠI:</strong> {movie.ageRating}</Paragraph>
-          <Paragraph style={{fontSize:"18px"}}><strong>ĐẠO DIỄN:</strong> {movie.director}</Paragraph>
-          <Paragraph style={{fontSize:"18px"}}><strong>DIỄN VIÊN:</strong> {movie.cast}</Paragraph>
-          <Paragraph style={{fontSize:"18px"}}><strong>THỂ LOẠI:</strong> {movie.genre}</Paragraph>
-          <Paragraph style={{fontSize:"18px"}}><strong>KHỞI CHIẾU:</strong> {movie.releaseDate}</Paragraph>
-          <Paragraph style={{ fontSize: "18px" }}><strong>THỜI LƯỢNG:</strong> {movie.duration} phút</Paragraph>
-          
-          
+          <Title level={2}>{movie.title}</Title>
+          <Paragraph style={{ fontSize: "18px" }}>
+            {movie.description}
+          </Paragraph>
+          <Paragraph style={{ fontSize: "18px" }}>
+            <strong>PHÂN LOẠI:</strong> {movie.ageRating}
+          </Paragraph>
+          <Paragraph style={{ fontSize: "18px" }}>
+            <strong>ĐẠO DIỄN:</strong> {movie.director}
+          </Paragraph>
+          <Paragraph style={{ fontSize: "18px" }}>
+            <strong>DIỄN VIÊN:</strong> {movie.cast}
+          </Paragraph>
+          <Paragraph style={{ fontSize: "18px" }}>
+            <strong>THỂ LOẠI:</strong> {movie.genre}
+          </Paragraph>
+          <Paragraph style={{ fontSize: "18px" }}>
+            <strong>KHỞI CHIẾU:</strong> {movie.releaseDate}
+          </Paragraph>
+          <Paragraph style={{ fontSize: "18px" }}>
+            <strong>THỜI LƯỢNG:</strong> {movie.duration} phút
+          </Paragraph>
         </Col>
       </Row>
 
       <br />
       <Title
         level={3}
-        style={{ display: "inline", borderBottom: "5px solid violet" }}
+        style={{
+          display: "inline",
+          borderLeft: "5px solid #034ea2",
+          paddingLeft: 5,
+        }}
       >
         Lịch chiếu
       </Title>
@@ -121,11 +137,12 @@ const MovieDetail = () => {
         <Space>
           {availableDates.map((date) => (
             <Button
+              size="large"
               key={date.fullDate}
               type={
                 selectedDate.isSame(dayjs(date.fullDate), "day")
                   ? "primary"
-                  : "default"
+                  : "text"
               }
               onClick={() => handleDateChange(dayjs(date.fullDate))}
             >
@@ -140,21 +157,26 @@ const MovieDetail = () => {
           {showtimes.map((theater) => (
             <div
               key={theater.theaterId}
-              style={{ paddingBottom: "10px", borderBottom: "2px solid gray" }}
+              style={{
+                paddingBottom: "10px",
+                borderBottom: "2px solid lightgray",
+              }}
             >
               <Title style={{ marginTop: "10px" }} level={4}>
                 {theater.theaterName}
               </Title>
               <Flex vertical gap={10}>
                 {theater.showtimeByRoomTypeList.map((roomType) => (
-                  <Flex gap={10} key={roomType.roomTypeId}>
-                    <Paragraph style={{ width: "150px" }}>
+                  <Flex gap={10} key={roomType.roomTypeId} align="center">
+                    <Paragraph style={{ width: "150px", fontSize:"18px", marginBottom:0 }}>
                       Phòng chiếu {roomType.roomTypeName}
                     </Paragraph>
                     <ul style={{ display: "flex", gap: "10px" }}>
                       {roomType.showtimeByTimeResponseList.map((showtime) => (
                         <Button
                           key={showtime.id}
+                          type="default"
+                          size="large"
                           onClick={() => handleClick(showtime.id)}
                         >
                           {dayjs(showtime.timeStart, "HH:mm:ss").format(
@@ -176,7 +198,12 @@ const MovieDetail = () => {
       )}
       <Title
         level={3}
-        style={{ display: "inline", borderBottom: "5px solid violet" }}
+        style={{
+          display: "inline-block",
+          borderLeft: "5px solid #034ea2",
+          paddingLeft: 5,
+          marginTop: "10px",
+        }}
       >
         Trailer
       </Title>

@@ -1,10 +1,11 @@
+import axiosAuth from "./axiosAuth";
 import { axiosClient } from "./axiosClient";
 import FormData from "form-data";
 
 const theaterApi = {};
 
 theaterApi.getAll = (params) => {
-  return axiosClient.get("/theater", { params });
+  return axiosAuth.get("/theater", { params });
 };
 
 theaterApi.getAllForUser = () => {
@@ -25,7 +26,7 @@ theaterApi.create = (theaterData, imgFile) => {
     formData.append("img", imgFile);
   }
 
-  return axiosClient.post("/theater", formData, {
+  return axiosAuth.post("/theater", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -42,7 +43,7 @@ theaterApi.update = (theaterId, theaterData, imgFile) => {
     formData.append("img", imgFile);
   }
 
-  return axiosClient.put(`/theater/${theaterId}`, formData, {
+  return axiosAuth.put(`/theater/${theaterId}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -51,7 +52,7 @@ theaterApi.update = (theaterId, theaterData, imgFile) => {
 
 // Delete a Theater
 theaterApi.delete = (theaterId) => {
-  return axiosClient.delete(`/theater/${theaterId}`);
+  return axiosAuth.delete(`/theater/${theaterId}`);
 };
 
 export default theaterApi;

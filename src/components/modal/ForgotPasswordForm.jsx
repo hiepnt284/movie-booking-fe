@@ -13,7 +13,6 @@ import {
 import { useDispatch } from "react-redux";
 import authApi from "../../api/authApi";
 
-import moment from "moment";
 import Paragraph from "antd/es/typography/Paragraph";
 import { MODAL_TYPES } from "../../store/modalTypes";
 import { openModal } from "../../store/slices/modalSlice";

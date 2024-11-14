@@ -1,0 +1,7 @@
+.ant-tabs-ink-bar {
+    border-bottom: 5px solid #1677ff;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+   font-weight: 500;
+}
