@@ -3,15 +3,15 @@ import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import Unauthorized from "../pages/Unauthorized";
 
-const ProtectedRoute = ({ requiredRole, children }) => {
+const ProtectedRoute = ({ requiredRole = [], children }) => {
   const { user } = useSelector((state) => state.auth);
 
   if (!user) {
     return <Navigate to="/" />;
   }
 
-  if (requiredRole && user.role !== requiredRole) {
-    // Nếu không có quyền, chuyển hướng tới trang không có quyền truy cập
+  if (requiredRole.length > 0 && !requiredRole.includes(user.role)) {
+    // Nếu vai trò của user không nằm trong danh sách requiredRole, hiển thị trang Unauthorized
     return <Unauthorized />;
   }
 

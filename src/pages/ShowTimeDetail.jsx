@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Row, Col, Card, Space, Typography, message, Flex, Button } from "antd";
+import { Row, Col, Card, Space, Typography, message, Flex, Button, Radio } from "antd";
 import showtimeApi from "../api/showtimeApi";
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
@@ -51,11 +51,11 @@ const ShowTimeDetail = () => {
   const getBorderColorBySeatType = (seatTypeName) => {
     switch (seatTypeName) {
       case "VIP":
-        return "gold";
+        return "blue";
       case "STANDARD":
-        return "gray";
+        return "#01c73c";
       case "COUPLE":
-        return "purple";
+        return "#ff62b0";
       default:
         return "black";
     }
@@ -301,7 +301,7 @@ const ShowTimeDetail = () => {
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div
             style={{
-              border: "2px solid gold",
+              border: "2px solid blue",
               display: "inline-block",
               width: "20px",
               height: "20px",
@@ -313,7 +313,7 @@ const ShowTimeDetail = () => {
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div
             style={{
-              border: "2px solid gray",
+              border: "2px solid #01c73c",
               display: "inline-block",
               width: "20px",
               height: "20px",
@@ -325,7 +325,7 @@ const ShowTimeDetail = () => {
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div
             style={{
-              border: "2px solid purple",
+              border: "2px solid #ff62b0",
               display: "inline-block",
               width: "20px",
               height: "20px",
@@ -371,43 +371,100 @@ const ShowTimeDetail = () => {
               {renderSeatLegend()}
             </Card>
           ) : (
-            <Card>
-              <Title level={4}>Chọn combo</Title>
-              {listFoods.map((food) => (
-                <Flex key={food.id} gap={10} style={{ marginBottom: "10px" }}>
-                  <img src={food.img} alt="" height={100} width={150} />
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ fontWeight: "bold", marginBottom: "5px" }}>
-                      {food.name}
-                    </h4>
-                    <div style={{ marginBottom: "5px" }}>
-                      {food.description}
-                    </div>
-                    <Flex justify="space-between">
-                      <div style={{ fontWeight: "bold" }}>
-                        Giá: {food.price.toLocaleString()} đ
+            <div>
+              <Card>
+                <Title level={4}>Chọn combo</Title>
+                {listFoods.map((food) => (
+                  <Flex key={food.id} gap={10} style={{ marginBottom: "10px" }}>
+                    <img src={food.img} alt="" height={100} width={150} />
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ fontWeight: "bold", marginBottom: "5px" }}>
+                        {food.name}
+                      </h4>
+                      <div style={{ marginBottom: "5px" }}>
+                        {food.description}
                       </div>
-                      <Flex>
-                        <button
-                          onClick={() => handleFoodSelect(food.id, "decrease")}
+                      <Flex justify="space-between">
+                        <div style={{ fontWeight: "bold" }}>
+                          Giá: {food.price.toLocaleString()} đ
+                        </div>
+                        <Flex
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
                         >
-                          -
-                        </button>
-                        <button>
-                          {selectedFoods.find((item) => item.id === food.id)
-                            ?.quantity || 0}
-                        </button>
-                        <button
-                          onClick={() => handleFoodSelect(food.id, "increase")}
-                        >
-                          +
-                        </button>
+                          <button
+                            style={{
+                              backgroundColor: "#f0f0f0",
+                              border: "1px solid #ccc",
+                              borderRadius: "5px",
+                              padding: "5px 10px",
+                              fontSize: "16px",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              handleFoodSelect(food.id, "decrease")
+                            }
+                          >
+                            -
+                          </button>
+                          <div
+                            style={{
+                              fontSize: "16px",
+                              fontWeight: "bold",
+                              color: "#333",
+                              width: "40px",
+                              textAlign: "center",
+                              border: "1px solid #ccc",
+                              borderRadius: "5px",
+                              backgroundColor: "#fafafa",
+                              padding: "5px 0",
+                            }}
+                          >
+                            {selectedFoods.find((item) => item.id === food.id)
+                              ?.quantity || 0}
+                          </div>
+                          <button
+                            style={{
+                              backgroundColor: "#f0f0f0",
+                              border: "1px solid #ccc",
+                              borderRadius: "5px",
+                              padding: "5px 10px",
+                              fontSize: "16px",
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              handleFoodSelect(food.id, "increase")
+                            }
+                          >
+                            +
+                          </button>
+                        </Flex>
                       </Flex>
-                    </Flex>
-                  </div>
-                </Flex>
-              ))}
-            </Card>
+                    </div>
+                  </Flex>
+                ))}
+              </Card>
+              <Card style={{ marginTop: "10px" }}>
+                <Title level={4}>Chọn phương thức thanh toán</Title>
+                <Radio.Group value={1}>
+                  <Space direction="vertical">
+                    <Radio value={1}>
+                      <Space>
+                        <img
+                          height={100}
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp1v7T287-ikP1m7dEUbs2n1SbbLEqkMd1ZA&s"
+                          alt=""
+                        />
+                        <p style={{ fontWeight: "bold" }}>Ví điện tử VNPay</p>
+                      </Space>
+                    </Radio>
+                  </Space>
+                </Radio.Group>
+              </Card>
+            </div>
           )}
         </Col>
         <Col span={8}>
@@ -500,20 +557,36 @@ const ShowTimeDetail = () => {
                   <div>{calculateTotalPrice().toLocaleString()} ₫</div>
                 </Flex>
                 {step == "selectSeat" ? (
-                  <Flex justify="space-between" style={{ marginTop: "10px" }}>
+                  <Flex justify="flex-end" style={{ marginTop: "10px" }}>
                     <Button type="primary" onClick={handleContinue}>
                       Tiếp tục
                     </Button>
                   </Flex>
                 ) : (
-                  <Flex justify="space-between" style={{ marginTop: "10px" }}>
-                    <Button onClick={() => setStep("selectSeat")}>
-                      Trở lại
-                    </Button>
-                    <Button type="primary" onClick={handleBook}>
-                      Đặt vé
-                    </Button>
-                  </Flex>
+                  <div>
+                    <Flex justify="space-between" style={{ marginTop: "10px" }}>
+                      <Button onClick={() => setStep("selectSeat")}>
+                        Trở lại
+                      </Button>
+                      <Button type="primary" onClick={handleBook}>
+                        Đặt vé
+                      </Button>
+                    </Flex>
+                    <p
+                      style={{
+                        borderTop: "2px solid lightgray",
+                        marginTop: "10px",
+                        paddingTop: "5px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      <span style={{ color: "red" }}>*</span>Vui lòng kiểm tra
+                      thông tin đầy đủ trước khi qua bấm đặt vé.
+                      <br />
+                      <span style={{ color: "red" }}>*</span>Vé mua rồi không
+                      hoàn trả lại dưới mọi hình thức.
+                    </p>
+                  </div>
                 )}
               </div>
             )}

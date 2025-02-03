@@ -28,6 +28,7 @@ import movieApi from "../api/movieApi";
 import Title from "antd/es/typography/Title";
 import dayjs from "dayjs";
 import useDebounce from "../customHook/useDebounce";
+import './style/Table.css'
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -272,33 +273,39 @@ const ManageMovie = () => {
       title: "Mã phim",
       dataIndex: "id",
       sorter: true,
+      align: "center",
     },
     {
       title: "Tiêu đề",
       dataIndex: "title",
       sorter: true,
+      align: "center",
     },
     {
       title: "Độ tuổi",
       dataIndex: "ageRating",
       sorter: true,
+      align: "center",
     },
     {
       title: "Thời lượng (phút)",
       dataIndex: "duration",
       sorter: true,
+      align: "center",
     },
     {
       title: "Ngày phát hành",
       dataIndex: "releaseDate",
       sorter: true,
+      align: "center",
     },
     {
       title: "Ảnh",
       dataIndex: "poster",
+      align: "center",
       render: (text) =>
         text ? (
-          <img src={text} alt="Poster" style={{ width: 50, height: 75 }} />
+          <img src={text} alt="Poster" style={{ width: 60, height: 90 }} />
         ) : (
           "N/A"
         ),
@@ -308,10 +315,12 @@ const ManageMovie = () => {
       dataIndex: "isActive",
       render: (isActive) => (isActive ? "Hoạt động" : "Không"),
       sorter: true,
+      align: "center",
     },
     {
       title: "Hành động",
       dataIndex: "actions",
+      align:"center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -341,8 +350,11 @@ const ManageMovie = () => {
         components: {
           Table: {
             headerBg: "#b3d3ff",
-            headerBorderRadius: 10,
+            headerBorderRadius: 0,
             borderColor: "gray",
+            cellFontSize: 16,
+            cellPaddingBlock: 10,
+            cellPaddingInline:10
           },
           Select: {},
         },
@@ -564,7 +576,7 @@ const ManageMovie = () => {
             <Space style={{ display: "flex", justifyContent: "flex-end" }}>
               <Button onClick={handleCancel}>Hủy</Button>
               <Button type="primary" htmlType="submit" loading={loading}>
-                Tạo
+                Xác nhận
               </Button>
             </Space>
           </Form.Item>

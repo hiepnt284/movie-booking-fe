@@ -8,6 +8,8 @@ import Paragraph from "antd/es/typography/Paragraph";
 import { Link, useNavigate } from "react-router-dom";
 const { Title } = Typography;
 
+import { GoogleOutlined } from "@ant-design/icons";
+
 const LoginForm = () => {
   const getOauthGoogleUrl = () => {
     const { VITE_GOOGLE_CLIENT_ID, VITE_GOOGLE_AUTHORIZED_REDIRECT_URI } =
@@ -46,10 +48,17 @@ const LoginForm = () => {
       .unwrap()
       .then((res) => {
         dispatch(closeModal());
-        if (res.userResponse.role == "ADMIN") {
-          navigate("admin")
+        if (
+          res.userResponse.role == "ADMIN" ||
+          res.userResponse.role == "MANAGER"
+          
+        ) {
+          navigate("admin");
         }
-        message.success("Đăng nhập thành công");
+        if (res.userResponse.role == "STAFF") {
+          navigate("admin/scan-qr");
+        }
+          message.success("Đăng nhập thành công");
       })
       .catch((error) => {
         message.error(error.message || "Có lỗi xảy ra.");
@@ -91,9 +100,14 @@ const LoginForm = () => {
         >
           <Input.Password placeholder="Mật khẩu" />
         </Form.Item>
-          <Button type="link" color="primary" onClick={handleOpenForgot} style={{paddingLeft:'0'}}>
-            Bạn quên mật khẩu?
-          </Button>
+        <Button
+          type="link"
+          color="primary"
+          onClick={handleOpenForgot}
+          style={{ paddingLeft: "0" }}
+        >
+          Bạn quên mật khẩu?
+        </Button>
         <Form.Item>
           <Button type="primary" htmlType="submit" block loading={loading}>
             Đăng nhập
@@ -102,7 +116,7 @@ const LoginForm = () => {
       </Form>
       <Link to={oauthURL}>
         <Button type="default" block variant="outlined" color="primary">
-          Đăng nhập bằng Google
+          Đăng nhập bằng Google <GoogleOutlined />
         </Button>
       </Link>
       <Paragraph style={{ textAlign: "center", marginTop: "20px" }}>

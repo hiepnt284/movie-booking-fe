@@ -108,7 +108,6 @@ const ManagePost = () => {
     } catch (error) {
       message.error("Có lỗi xảy ra.");
       console.log(error);
-      
     } finally {
       setLoading(false);
     }
@@ -207,11 +206,12 @@ const ManagePost = () => {
   };
 
   const columns = [
-    { title: "Mã", dataIndex: "id", sorter: true },
-    { title: "Tiêu đề", dataIndex: "title", sorter: true },
+    { title: "Mã", dataIndex: "id", sorter: true, align: "center" },
+    { title: "Tiêu đề", dataIndex: "title", sorter: true, align: "center" },
     {
       title: "Ảnh minh họa",
       dataIndex: "thumbnail",
+      align: "center",
       render: (text) =>
         text ? (
           <img src={text} alt="Thumbnail" style={{ width: 150, height: 75 }} />
@@ -222,11 +222,13 @@ const ManagePost = () => {
     {
       title: "Trạng thái",
       dataIndex: "isActive",
+      align: "center",
       render: (isActive) => (isActive ? "Hoạt động" : "Không"),
       sorter: true,
     },
     {
       title: "Hành động",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -253,7 +255,17 @@ const ManagePost = () => {
   return (
     <ConfigProvider
       theme={{
-        components: { Table: { headerBg: "#b3d3ff", borderColor: "gray" } },
+        components: {
+          Table: {
+            headerBg: "#b3d3ff",
+            headerBorderRadius: 0,
+            borderColor: "gray",
+            cellFontSize: 16,
+            cellPaddingBlock: 10,
+            cellPaddingInline: 10,
+          },
+          Select: {},
+        },
       }}
     >
       <div>
@@ -308,13 +320,25 @@ const ManagePost = () => {
         }}
       >
         <Form form={postForm} layout="vertical" onFinish={handleFinish}>
-          <Form.Item
-            label="Tiêu đề"
-            name="title"
-            rules={[{ required: true, message: "Vui lòng nhập tiêu đề!" }]}
-          >
-            <Input placeholder="Nhập tiêu đề bài viết" />
-          </Form.Item>
+          <Flex gap={20}>
+            <Form.Item
+              label="Tiêu đề"
+              name="title"
+              rules={[{ required: true, message: "Vui lòng nhập tiêu đề!" }]}
+              style={{ flex: 3 }}
+            >
+              <Input placeholder="Nhập tiêu đề bài viết" />
+            </Form.Item>
+            <Form.Item
+              name="isActive"
+              label="Trạng thái"
+              valuePropName="checked"
+              initialValue={true}
+              style={{ flex: 1 }}
+            >
+              <Switch defaultChecked={true} />
+            </Form.Item>
+          </Flex>
           <Form.Item name="thumbnail" label="Thumbnail">
             <Upload
               listType="picture"
@@ -327,15 +351,7 @@ const ManagePost = () => {
               <Button icon={<UploadOutlined />}>Click để tải lên</Button>
             </Upload>
           </Form.Item>
-          <Form.Item
-            style={{ marginTop: "50px" }}
-            name="isActive"
-            label="Trạng thái"
-            valuePropName="checked"
-            initialValue={true}
-          >
-            <Switch defaultChecked={true} />
-          </Form.Item>
+
           <Form.Item
             label="*Nội dung"
             rules={[{ required: true, message: "Vui lòng nhập tiêu đề!" }]}

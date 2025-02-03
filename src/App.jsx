@@ -51,7 +51,11 @@ function App() {
 
   // useEffect(() => {
   //   if (user) {
-  //     if (user.role == "ADMIN") {
+  //     if (
+  //       user.role == "ADMIN" ||
+  //       user.role == "MANAGER" ||
+  //       user.role == "STAFF"
+  //     ) {
   //       navigate("admin");
   //     }
   //   }

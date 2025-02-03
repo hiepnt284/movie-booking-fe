@@ -15,8 +15,10 @@ import dayjs from "dayjs";
 import theaterApi from "../api/theaterApi";
 import showtimeApi from "../api/showtimeApi";
 import movieApi from "../api/movieApi";
+import { useSelector } from "react-redux";
 
 const ManageShowing = () => {
+  const { user } = useSelector((state) => state.auth);
   const [theaters, setTheaters] = useState([]);
   const [selectedTheater, setSelectedTheater] = useState();
   const [selectedDate, setSelectedDate] = useState();
@@ -34,13 +36,19 @@ const ManageShowing = () => {
       setLoading(true);
       try {
         const res = await theaterApi.getAllForUser();
-        setTheaters(res.result);
+        // Nếu user là admin (theaterId === null), lấy tất cả rạp
+        const filteredTheaters =
+          user.theaterId === null
+            ? res.result // Admin được phép xem tất cả rạp
+            : res.result.filter((theater) => theater.id === user.theaterId);
+        setTheaters(filteredTheaters);
       } catch (error) {
         console.log(error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchTheater();
 
     const fetchMovies = async () => {
@@ -52,7 +60,7 @@ const ManageShowing = () => {
       }
     };
     fetchMovies();
-  }, []);
+  }, [user.theaterId]); // Thêm dependency user.theaterId
 
   const handleConfirm = async () => {
     if (!selectedTheater || !selectedDate) {
@@ -64,7 +72,7 @@ const ManageShowing = () => {
         theaterId: selectedTheater,
         date: selectedDate,
       });
-      
+
       setData(res.result);
     } catch (error) {
       console.log(error);
@@ -88,7 +96,7 @@ const ManageShowing = () => {
     form.setFieldsValue({
       movieId: res.result.movieId,
       timeStart: dayjs(res.result.timeStart, "HH:mm"),
-      isActive: res.result.isActive
+      isActive: res.result.isActive,
     });
   };
 
@@ -98,7 +106,7 @@ const ManageShowing = () => {
         // Nếu đang sửa suất chiếu
         await showtimeApi.update(editingShowtime.id, {
           movieId: values.movieId,
-          timeStart: values.timeStart.format("HH:mm"), 
+          timeStart: values.timeStart.format("HH:mm"),
           isActive: values.isActive,
         });
         message.success("Cập nhật suất chiếu thành công!");
@@ -158,13 +166,13 @@ const ManageShowing = () => {
       title: "Trạng thái",
       dataIndex: "isActive",
       key: "isActive",
-      width:"20%",
+      width: "20%",
       render: (isActive) => (isActive ? "Hoạt động" : "Không hoạt động"),
     },
     {
       title: "Hành động",
       key: "actions",
-      width:"20%",
+      width: "20%",
       render: (record) => (
         <Space>
           <Button type="link" onClick={() => handleEditShowtime(record.id)}>
@@ -240,7 +248,17 @@ const ManageShowing = () => {
 
       {/* Modal thêm/cập nhật suất chiếu */}
       <Modal
-        title={isEditing ? "Cập nhật suất chiếu" : "Thêm suất chiếu"}
+        title={
+          isEditing
+            ? "Cập nhật suất chiếu"
+            : `Thêm suất chiếu tại ${
+                data.find((room) => room.roomResponse.id === selectedRoom)
+                  ?.roomResponse.name || ""
+              } ${
+                theaters.find((theater) => theater.id === selectedTheater)
+                  ?.name || ""
+              } `
+        }
         open={modalVisible}
         onCancel={() => {
           setModalVisible(false);

@@ -16,6 +16,7 @@ import authApi from "../../api/authApi";
 import Paragraph from "antd/es/typography/Paragraph";
 import { MODAL_TYPES } from "../../store/modalTypes";
 import { openModal } from "../../store/slices/modalSlice";
+import moment from "moment";
 
 const { Text, Title } = Typography;
 const { Option } = Select;

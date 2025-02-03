@@ -220,23 +220,27 @@ const ManageCarousel = () => {
       title: "Mã",
       dataIndex: "id",
       sorter: true,
+      align: "center",
     },
     {
       title: "Tên",
       dataIndex: "name",
       sorter: true,
+      align: "center",
     },
     {
       title: "Liên kết ",
       dataIndex: "link",
+      align: "center",
       sorter: true,
     },
     {
       title: "Ảnh",
       dataIndex: "img",
+      align: "center",
       render: (text) =>
         text ? (
-          <img src={text} alt="Image" style={{ width: 150, height: 75 }} />
+          <img src={text} alt="Image" style={{ width: 200, height: 94 }} />
         ) : (
           "N/A"
         ),
@@ -244,12 +248,14 @@ const ManageCarousel = () => {
     {
       title: "Trạng thái",
       dataIndex: "isActive",
+      align: "center",
       render: (isActive) => (isActive ? "Hoạt động" : "Không"),
       sorter: true,
     },
     {
       title: "Hành động",
       dataIndex: "actions",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -279,8 +285,11 @@ const ManageCarousel = () => {
         components: {
           Table: {
             headerBg: "#b3d3ff",
-            headerBorderRadius: 10,
+            headerBorderRadius: 0,
             borderColor: "gray",
+            cellFontSize: 16,
+            cellPaddingBlock: 10,
+            cellPaddingInline: 10,
           },
           Select: {},
         },
@@ -354,9 +363,7 @@ const ManageCarousel = () => {
               <Form.Item
                 name="link"
                 label="Liên kết"
-                rules={[
-                  { required: true, message: "Vui lòng nhập liên kết" },
-                ]}
+                rules={[{ required: true, message: "Vui lòng nhập liên kết" }]}
               >
                 <Input placeholder="Nhập liên kết" />
               </Form.Item>

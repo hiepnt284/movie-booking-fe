@@ -50,7 +50,7 @@ const ReactQuillEditor = ({ content, handleChange }) => {
       {enable ? (
         <ReactQuill
           ref={quillRef}
-          style={{ height: "400px" }}
+          style={{ height: "600px" }}
           value={content}
           onChange={handleChange}
           theme="snow"
@@ -110,7 +110,7 @@ const ReactQuillEditor = ({ content, handleChange }) => {
           ]}
         />
       ) : null}
-      <div style={{padding:"0 200px"}}><ReactQuill value={content} readOnly={true} theme={"bubble"} /></div>
+      {/* <div style={{padding:"0 200px"}}><ReactQuill value={content} readOnly={true} theme={"bubble"} /></div> */}
       <div style={{ marginTop: "50px" }}></div>
       {/* <div
         style={{ border: "1px solid #d9d9d9", padding: "5px" }}

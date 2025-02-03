@@ -223,34 +223,34 @@ const ManageFood = () => {
     {
       title: "Mã",
       dataIndex: "id",
-      sorter: true,
+      sorter: true, 
+      align: "center",
     },
     {
       title: "Tên",
       dataIndex: "name",
       sorter: true,
+      align: "center",
     },
     {
       title: "Mô tả",
       dataIndex: "description",
       sorter: true,
+      align: "center",
     },
     {
       title: "Giá bán",
       dataIndex: "price",
       sorter: true,
-    },
-    {
-      title: "Đã bán",
-      dataIndex: "sold",
-      sorter: true,
+      align: "center",
     },
     {
       title: "Ảnh",
       dataIndex: "img",
+      align: "center",
       render: (text) =>
         text ? (
-          <img src={text} alt="Image" style={{ width: 50, height: 75 }} />
+          <img src={text} alt="Image" style={{ width: 120, height: 100 }} />
         ) : (
           "N/A"
         ),
@@ -258,12 +258,14 @@ const ManageFood = () => {
     {
       title: "Trạng thái",
       dataIndex: "isActive",
+      align: "center",
       render: (isActive) => (isActive ? "Hoạt động" : "Không"),
       sorter: true,
     },
     {
       title: "Hành động",
       dataIndex: "actions",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -293,8 +295,11 @@ const ManageFood = () => {
         components: {
           Table: {
             headerBg: "#b3d3ff",
-            headerBorderRadius: 10,
+            headerBorderRadius: 0,
             borderColor: "gray",
+            cellFontSize: 16,
+            cellPaddingBlock: 10,
+            cellPaddingInline: 10,
           },
           Select: {},
         },

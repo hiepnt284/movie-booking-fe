@@ -28,6 +28,10 @@ import Movie from "./pages/Movie.jsx";
 import ManageCarousel from "./pages/ManageCarousel.jsx";
 import ManagePost from "./pages/ManagePost.jsx";
 import SaleDetail from "./pages/SaleDetail.jsx";
+import ManageTicketPrice from "./pages/ManageTicketPrice.jsx";
+import ManageStaff from "./pages/ManageStaff.jsx";
+import ManageUser from "./pages/ManageUser.jsx";
+import BookingTicketOffline from "./pages/BookingTicketOffline.jsx";
 
 const router = createBrowserRouter([
   {
@@ -104,7 +108,7 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     element: (
-      <ProtectedRoute requiredRole="ADMIN">
+      <ProtectedRoute requiredRole={["ADMIN", "MANAGER", "STAFF"]}>
         <AppAdmin />
       </ProtectedRoute>
     ),
@@ -141,6 +145,22 @@ const router = createBrowserRouter([
       {
         path: "scan-qr",
         element: <ScanQR />,
+      },
+      {
+        path: "manage-ticket-price",
+        element: <ManageTicketPrice />,
+      },
+      {
+        path: "manage-staff",
+        element: <ManageStaff />,
+      },
+      {
+        path: "manage-user",
+        element: <ManageUser />,
+      },
+      {
+        path: "booking",
+        element: <BookingTicketOffline />,
       },
     ],
   },

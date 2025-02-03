@@ -245,30 +245,36 @@ const ManageTheater = () => {
       title: "Mã rạp",
       dataIndex: "id",
       sorter: true,
+      align: "center",
     },
     {
       title: "Tên",
       dataIndex: "name",
       sorter: true,
+      align: "center",
     },
     {
       title: "Địa chỉ",
       dataIndex: "address",
       sorter: true,
+      align: "center",
     },
     {
       title: "Email",
       dataIndex: "email",
       sorter: true,
+      align: "center",
     },
     {
       title: "Hotline",
       dataIndex: "phone",
       sorter: true,
+      align: "center",
     },
     {
       title: "Ảnh",
       dataIndex: "img",
+      align: "center",
       render: (text) =>
         text ? (
           <img src={text} alt="Image" style={{ width: 150, height: 75 }} />
@@ -279,6 +285,7 @@ const ManageTheater = () => {
     {
       title: "Hành động",
       dataIndex: "actions",
+      align: "center",
       render: (_, record) => (
         <Space size="middle">
           <Button
@@ -316,8 +323,11 @@ const ManageTheater = () => {
         components: {
           Table: {
             headerBg: "#b3d3ff",
-            headerBorderRadius: 10,
+            headerBorderRadius: 0,
             borderColor: "gray",
+            cellFontSize: 16,
+            cellPaddingBlock: 10,
+            cellPaddingInline: 10,
           },
           Select: {},
         },

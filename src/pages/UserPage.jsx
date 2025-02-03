@@ -10,18 +10,23 @@ import {
   Tabs,
   Row,
   Col,
+  Flex,
 } from "antd";
 import userApi from "../api/userApi";
 import Title from "antd/es/typography/Title";
 import { Avatar, Typography, Divider, Progress, Tooltip } from "antd";
 import { GiftOutlined, RightOutlined, StarOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import Paragraph from "antd/es/typography/Paragraph";
+import bookingApi from "../api/bookingApi";
 
 const UserPage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [bookingHistory, setBookingHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isPasswordModalVisible, setPasswordModalVisible] = useState(false);
+  const [isDetailModalVisible, setDetailModalVisible] = useState(false); // State cho modal chi tiết
+  const [currentBookingDetail, setCurrentBookingDetail] = useState(null); // Lưu chi tiết hóa đơn
 
   // Lấy thông tin người dùng
   const fetchUserInfo = async () => {
@@ -67,6 +72,20 @@ const UserPage = () => {
     }
   };
 
+  const handleDetail = async (id) => {
+    try {
+      setLoading(true);
+      const res = await bookingApi.get(id);
+      setCurrentBookingDetail(res.result); // Lưu dữ liệu hóa đơn
+      setDetailModalVisible(true); // Hiển thị modal
+    } catch (error) {
+      message.error(error.response?.data?.message || "Có lỗi xảy ra.");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const columns = [
     { title: "Mã hóa đơn", dataIndex: "bookingCode", key: "bookingCode" },
     { title: "Phim", dataIndex: "movieTitle", key: "movieTitle" },
@@ -80,13 +99,22 @@ const UserPage = () => {
       title: "Tổng tiền",
       dataIndex: "totalPrice",
       key: "totalPrice",
-      render: (text) => text.toLocaleString()+ "đ",
+      render: (text) => text.toLocaleString() + "đ",
+    },
+    {
+      title: "Hành động",
+      dataIndex: "actions",
+      render: (_, record) => (
+        <Button onClick={() => handleDetail(record.id)} type="primary">
+          Chi tiết
+        </Button>
+      ),
     },
   ];
 
   return (
     <Spin spinning={loading}>
-      <div style={{ padding: "20px 140px" }}>
+      <div style={{ padding: "40px 140px", minHeight:"650px"}}>
         <div style={{ display: "flex", gap: "50px" }}>
           <div
             style={{
@@ -96,6 +124,7 @@ const UserPage = () => {
               marginBottom: "30px",
               padding: "20px",
               boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Thêm box shadow
+              alignSelf:"flex-start"
             }}
           >
             {/* Avatar và tên người dùng */}
@@ -116,16 +145,16 @@ const UserPage = () => {
               <Typography.Title level={5} style={{ marginTop: "10px" }}>
                 {userInfo?.fullName}
               </Typography.Title>
-              <div>
+              {/* <div>
                 <StarOutlined style={{ color: "#fadb14" }} />{" "}
                 <span>0 Stars</span>
-              </div>
+              </div> */}
             </div>
 
-            <Divider />
+            {/* <Divider /> */}
 
             {/* Tổng chi tiêu */}
-            <div style={{ textAlign: "center" }}>
+            {/* <div style={{ textAlign: "center" }}>
               <div
                 style={{
                   display: "flex",
@@ -145,10 +174,10 @@ const UserPage = () => {
               <Typography.Title level={3} style={{ color: "orange" }}>
                 0 ₫
               </Typography.Title>
-            </div>
+            </div> */}
 
             {/* Progress bar */}
-            <div style={{ marginTop: "20px" }}>
+            {/* <div style={{ marginTop: "20px" }}>
               <div
                 style={{
                   display: "flex",
@@ -178,7 +207,7 @@ const UserPage = () => {
                 <GiftOutlined style={{ color: "#52c41a" }} />
                 <StarOutlined style={{ color: "#faad14" }} />
               </div>
-            </div>
+            </div> */}
             <Divider />
             {/* Thông tin thêm phía dưới */}
             <div style={{ marginTop: "20px" }}>
@@ -347,6 +376,98 @@ const UserPage = () => {
               </Button>
             </Form.Item>
           </Form>
+        </Modal>
+
+        <Modal
+          title="Chi tiết hóa đơn"
+          open={isDetailModalVisible}
+          onCancel={() => setDetailModalVisible(false)}
+          footer={null}
+          destroyOnClose
+          style={{
+            top: "10px",
+          }}
+        >
+          {currentBookingDetail ? (
+            <div>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Tổng tiền:
+                </span>{" "}
+                {currentBookingDetail.totalPrice}
+              </Paragraph>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Thời gian thanh toán:
+                </span>{" "}
+                {dayjs(currentBookingDetail.bookingDate).format(
+                  "DD/MM/YYYY HH:mm:ss"
+                )}
+              </Paragraph>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Phim:
+                </span>{" "}
+                {currentBookingDetail.movieTitle}
+              </Paragraph>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Thời gian:
+                </span>{" "}
+                {currentBookingDetail.date} {currentBookingDetail.timeStart}
+              </Paragraph>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Rạp:
+                </span>{" "}
+                {currentBookingDetail.theaterName}
+              </Paragraph>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Phòng chiếu:
+                </span>{" "}
+                {currentBookingDetail.roomName}
+              </Paragraph>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Ghế:
+                </span>{" "}
+                {currentBookingDetail.showSeatNumberList}
+              </Paragraph>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Mã vé:
+                </span>{" "}
+                {currentBookingDetail.bookingCode}
+              </Paragraph>
+              <Flex>
+                <Paragraph>
+                  <span style={{ display: "inline-block", width: "200px" }}>
+                    Đồ ăn:
+                  </span>
+                </Paragraph>
+                <div>
+                  {currentBookingDetail.foodBookingList.map((item) => (
+                    <Paragraph key={item.foodName}>
+                      <span style={{ display: "inline-block", width: "200px" }}>
+                        {item.quantity} x {item.foodName}
+                      </span>
+                    </Paragraph>
+                  ))}
+                </div>
+              </Flex>
+              <Paragraph>
+                <span style={{ display: "inline-block", width: "200px" }}>
+                  Mã QR:
+                </span>
+              </Paragraph>
+              <Flex justify="center">
+                <img src={currentBookingDetail.qrCode} alt="" width={200} />
+              </Flex>
+            </div>
+          ) : (
+            <Spin spinning />
+          )}
         </Modal>
       </div>
     </Spin>

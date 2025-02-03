@@ -9,4 +9,8 @@ bookingApi.get = (bookingId) => {
 bookingApi.verify = (data) => {
   return axiosAuth.post(`booking/verify?bookingCode=${data}`);
 };
+
+bookingApi.bookOff = (showTimeData) => {
+  return axiosAuth.post("/booking/book-off", showTimeData);
+};
 export default bookingApi;

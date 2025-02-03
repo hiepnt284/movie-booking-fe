@@ -60,7 +60,6 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
     setEditingRoom(null);
     roomForm.resetFields();
   };
-  const handleManageSeat = () => {};
   const handleEdit = async (roomId) => {
     try {
       setLoading(true);
@@ -73,25 +72,25 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
       setLoading(false);
     }
   };
-    const handleDelete = async (roomId) => {
-      Modal.confirm({
-        title: `Bạn có chắc muốn xóa phòng với id = ${roomId}?`,
-        okText: "Có",
-        okType: "danger",
-        cancelText: "Không",
-        onOk: async () => {
-          try {
-            await roomApi.delete(roomId);
-            message.success("Xóa phòng chiếu thành công");
-            fetchRoomAndType(theaterId);
-          } catch (error) {
-            message.error(error.response?.data?.message || "Có lỗi xảy ra.");
-          } finally {
-            setLoading(false);
-          }
-        },
-      });
-    };
+  const handleDelete = async (roomId) => {
+    Modal.confirm({
+      title: `Bạn có chắc muốn xóa phòng với id = ${roomId}?`,
+      okText: "Có",
+      okType: "danger",
+      cancelText: "Không",
+      onOk: async () => {
+        try {
+          await roomApi.delete(roomId);
+          message.success("Xóa phòng chiếu thành công");
+          fetchRoomAndType(theaterId);
+        } catch (error) {
+          message.error(error.response?.data?.message || "Có lỗi xảy ra.");
+        } finally {
+          setLoading(false);
+        }
+      },
+    });
+  };
 
   const openRoomModal = async (room = null) => {
     const res1 = await roomTypeApi.getAll();
@@ -113,11 +112,13 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
 
     try {
       if (editingRoom) {
-        const { name, roomTypeId } = value;
+        const { name, roomTypeId, row, col } = value;
 
         const roomData = {
           name,
           roomTypeId,
+          row,
+          col,
         };
         await roomApi.update(editingRoom.id, roomData);
         message.success("Cập nhật phòng chiếu thành công");
@@ -158,18 +159,18 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
       dataIndex: "roomTypeName",
     },
     {
+      title: "Số hàng ghế",
+      dataIndex: "row",
+    },
+    {
+      title: "Số cột ghế",
+      dataIndex: "col",
+    },
+    {
       title: "Hành động",
       dataIndex: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => handleManageSeat(record.id)}
-            loading={loading}
-            type="primary"
-          >
-            Quản lý ghế
-          </Button>
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEdit(record.id)}
@@ -231,7 +232,7 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
           destroyOnClose
           forceRender
           style={{
-            top: "50px",
+            top: "100px",
           }}
           width={"400px"}
         >
@@ -266,40 +267,34 @@ const ManageRoomModal = ({ isManageRoomOpen, handleClose, theaterId }) => {
                 </Form.Item>
               </Col>
             </Row>
-            {!editingRoom && (
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="row"
-                    label="Số hàng ghế"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập số hàng" },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      placeholder="Nhập số hàng"
-                      min={1} // Đặt giá trị nhỏ nhất (tùy chọn)
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="col"
-                    label="Số cột ghế"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập số cột" },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      placeholder="Nhập số cột"
-                      min={1} // Đặt giá trị nhỏ nhất (tùy chọn)
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-            )}
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="row"
+                  label="Số hàng ghế"
+                  rules={[{ required: true, message: "Vui lòng nhập số hàng" }]}
+                >
+                  <Input
+                    type="number"
+                    placeholder="Nhập số hàng"
+                    min={1} // Đặt giá trị nhỏ nhất (tùy chọn)
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="col"
+                  label="Số cột ghế"
+                  rules={[{ required: true, message: "Vui lòng nhập số cột" }]}
+                >
+                  <Input
+                    type="number"
+                    placeholder="Nhập số cột"
+                    min={1} // Đặt giá trị nhỏ nhất (tùy chọn)
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
             <Form.Item>
               <Space style={{ display: "flex", justifyContent: "flex-end" }}>
